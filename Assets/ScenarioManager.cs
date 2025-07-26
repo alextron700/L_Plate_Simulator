@@ -55,7 +55,7 @@ public class ScenarioManager : MonoBehaviour
                 scenario.spawnPositions[i].Y,
                 scenario.spawnPositions[i].Z
             );
-            int prefabIdx = System.Array.IndexOf(prefabNames, loc.PrefabName);
+            int prefabIdx = System.Array.IndexOf(prefabNames, scenario.spawnPositions[i].PrefabName);
             if (prefabIdx >= 0 && prefabIdx < objectPrefabs.Length)
             {
                 GameObject prefabToSpawn = objectPrefabs[prefabIdx];
@@ -63,7 +63,7 @@ public class ScenarioManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"PrefabName '{loc.PrefabName}' not found in prefabNames array!");
+                Debug.LogWarning($"PrefabName '{scenario.spawnPositions[i].PrefabName}' not found in prefabNames array!");
             }
         }
 
