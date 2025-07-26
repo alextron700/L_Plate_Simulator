@@ -56,9 +56,9 @@ public class ScenarioManager : MonoBehaviour
                 scenario.spawnPositions[i].Z
             );
             int prefabIdx = System.Array.IndexOf(prefabNames, scenario.spawnPositions[i].PrefabName);
-            if (prefabIdx >= 0 && prefabIdx < objectPrefabs.Length)
+            if (prefabIdx >= 0 && prefabIdx < objectPrefab.Length)
             {
-                GameObject prefabToSpawn = objectPrefabs[prefabIdx];
+                GameObject prefabToSpawn = objectPrefab[prefabIdx];
                 Instantiate(prefabToSpawn, pos, Quaternion.identity);
             }
             else
