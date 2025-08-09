@@ -48,33 +48,43 @@ public class ScenarioManager : MonoBehaviour
         // Instantiate(vehiclePrefab, spawn, Quaternion.identity);
 
         // TODO: Spawn objects, set environment, etc.
-        for (int i = 0; i < scenario.spawnPositions.Count; i++)
+        Debug.Log(scenario.SpawnPositions);
+        if (scenario.SpawnPositions != null)
         {
-            Vector3 pos = new Vector3(
-                scenario.spawnPositions[i].X,
-                scenario.spawnPositions[i].Y,
-                scenario.spawnPositions[i].Z
-            );
-            int prefabIdx = System.Array.IndexOf(prefabNames, loc.PrefabName);
-            if (prefabIdx >= 0 && prefabIdx < objectPrefabs.Length)
+            for (int i = 0; i < scenario.SpawnPositions.Count; i++)
             {
-                GameObject prefabToSpawn = objectPrefabs[prefabIdx];
-                Instantiate(prefabToSpawn, pos, Quaternion.identity);
-            }
-            else
-            {
-                Debug.LogWarning($"PrefabName '{loc.PrefabName}' not found in prefabNames array!");
-            }
-        }
 
+
+                Vector3 pos = new Vector3(
+                     scenario.SpawnPositions[i].X ,
+                     scenario.SpawnPositions[i].Y,
+                     scenario.SpawnPositions[i].Z
+                 );
+                string prefabName = scenario.SpawnPositions[i].PrefabName;
+                int prefabIdx = System.Array.IndexOf(prefabNames, prefabName);
+                if (prefabIdx >= 0 && prefabIdx < objectPrefab.Length)
+                {
+                    GameObject prefabToSpawn = objectPrefab[prefabIdx];
+                    Debug.Log($"attempting to spawn object {objectPrefab[prefabIdx]}");
+                    Instantiate(prefabToSpawn, pos, Quaternion.identity);
+                }
+                else
+                {
+                    Debug.LogWarning($"PrefabName '{prefabName}' not found in prefabNames array!");
+                }
+
+            }
+            Debug.Log("Load Success!");
+        }
     }
-}
-    // Update is called once per frame
     void Update()
     {
 
-    } 
- }
+    }
+
+}
+    // Update is called once per frame
+     
 
 
 
@@ -88,7 +98,7 @@ public class Scenario
     public List<Event> Events { get; set; }
     public List<SuccessCondition> SuccessConditions { get; set; }
     public List<FailCondition> FailConditions { get; set; }
-    public List<Location> spawnPositions { get; set; }
+    public List<Location> SpawnPositions { get; set; }
 }
 
 public class EnvironmentSettings
@@ -100,10 +110,10 @@ public class EnvironmentSettings
 public class VehicleSettings
 {
     public string Type { get; set; }
-    public SpawnPoint Spawn { get; set; }
+    public SpawnPositions Spawn { get; set; }
 }
 
-public class SpawnPoint
+public class SpawnPositions
 {
     public float X { get; set; }
     public float Y { get; set; }
@@ -159,6 +169,34 @@ public static class ScenarioLoader
     public static Scenario LoadScenario(string path)
     {
         string json = File.ReadAllText(path);
-        return JsonConvert.DeserializeObject<Scenario>(json);
+
+
+        Debug.Log(JsonConvert.DeserializeObject<Scenario>(json));
+         return JsonConvert.DeserializeObject<Scenario>(json);
     }
+
 }
+/*{
+  "Scenario":[{
+    "Name":"Alpha Level",
+    "Description":"First level done in L-plate simulator",
+    "Environment":"EnvironmentSettings.Time",
+    "SpawnPositions":"Location"
+  }],
+  
+  "EnvironmentSettings":[{
+    "Time":12
+  }],
+  "SpawnPoint":[{
+    "X":7.737,
+    "Y":6.6,
+    "Z":1.28
+  }],
+  "location":[{
+    "X":7.737,
+    "Y":6.6,
+    "Z":1.28,
+    "PrefabName":"PlayerCar"
+  }]
+}
+*/
