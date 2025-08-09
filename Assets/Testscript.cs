@@ -25,15 +25,15 @@ public class Testscript : MonoBehaviour
     private float stopTimer = 0;
     private float lastSpeedZone = 0;
     public Vector3 RespawnLoc;
-    
+    private TrafficLightManager CurrentLight = null; 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        if ( !driverPOV)
+        if (!driverPOV)
         {
             Debug.Log("No Camera assigned! ( this may be because the assigned vehicle is not the player vehicle)");
         }
-        
+
     }
     // all internal calculations are in meters per second
     void Update()
@@ -94,52 +94,52 @@ public class Testscript : MonoBehaviour
 
             }
         }
-            if (Mathf.Abs(currentSpeed) > speedLimit && isAnNPC == false) // speeding offences work differentlty to NPC 
-            {
-                Debug.Log("You are speeding!");
-            }else if( currentSpeed > speedLimit && isAnNPC == true)
-            {
-                currentSpeed = Mathf.MoveTowards(currentSpeed, speedLimit, brake);
-            }
+        if (Mathf.Abs(currentSpeed) > speedLimit && isAnNPC == false) // speeding offences work differentlty to NPC 
+        {
+            Debug.Log("You are speeding!");
+        } else if (currentSpeed > speedLimit && isAnNPC == true)
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, speedLimit, brake);
+        }
 
-            if (moveVertical != 0 && isAnNPC == false) // speed math
+        if (moveVertical != 0 && isAnNPC == false) // speed math
+        {
+            transform.Rotate(new Vector3(0f, moveHorizontal, 0f) * turnRate * Time.deltaTime);
+            calcRotation += moveHorizontal * turnRate * Time.deltaTime;
+        }
+        if (accelerator != 0 && isAnNPC == true)
+        {
+            transform.Rotate(new Vector3(0f, steering, 0f) * turnRate * Time.deltaTime);
+            calcRotation += steering * turnRate * Time.deltaTime;
+        }
+        if (playerStatus && isAnNPC == false) // check that a canvas object has been assigned, and that this vehicle is not an npc
+        {
+            playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H";
+            if (Input.GetKeyDown(KeyCode.Q)) // turn signal logic
             {
-                transform.Rotate(new Vector3(0f, moveHorizontal, 0f) * turnRate * Time.deltaTime);
-                calcRotation += moveHorizontal * turnRate * Time.deltaTime;
-            } 
-            if(accelerator != 0 && isAnNPC == true)
-            {
-                transform.Rotate(new Vector3(0f, steering, 0f) * turnRate * Time.deltaTime);
-                calcRotation += steering * turnRate * Time.deltaTime;
+                indicatorLeft = !indicatorLeft;
+                indicatorRight = false;
             }
-            if (playerStatus && isAnNPC == false) // check that a canvas object has been assigned, and that this vehicle is not an npc
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H";
-                if (Input.GetKeyDown(KeyCode.Q)) // turn signal logic
-                {
-                    indicatorLeft = !indicatorLeft;
-                    indicatorRight = false;
-                }
-                if (Input.GetKeyDown(KeyCode.E))
-                {
 
-                    indicatorLeft = false;
-                    indicatorRight = !indicatorRight;
-                }
-                if (indicatorLeft)
-                {
-                    playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H" + " <-";
-                }
-                if (indicatorRight)
-                {
-                    playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H" + " ->";
-                }
+                indicatorLeft = false;
+                indicatorRight = !indicatorRight;
             }
-            if (driverPOV && isAnNPC == false)
+            if (indicatorLeft)
             {
-                driverPOV.transform.Rotate(0f, MouseX, 0f);
-
+                playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H" + " <-";
             }
+            if (indicatorRight)
+            {
+                playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H" + " ->";
+            }
+        }
+        if (driverPOV && isAnNPC == false)
+        {
+            driverPOV.transform.Rotate(0f, MouseX, 0f);
+
+        }
 
 
     }
@@ -156,7 +156,7 @@ public class Testscript : MonoBehaviour
          }
 
         - Replace "x" with the exact tag name as shown in the Unity Inspector (case sensitive!).
-        - Do not change "CompareTag"—keep the capitalization exactly as shown.
+        - Do not change "CompareTag"â€”keep the capitalization exactly as shown.
         - Make sure there are no duplicates! ( may cause unpredictable behavior!)
 
         EXAMPLE 1 (new block):
@@ -206,7 +206,7 @@ public class Testscript : MonoBehaviour
         if (other.CompareTag("Respawn"))
         {
             Debug.Log("YOU DIED!");
-            if(RespawnLoc == null)
+            if (RespawnLoc == null)
             {
                 Debug.LogError("Attempted to find a respawn location, but none was found");
             }
@@ -214,10 +214,18 @@ public class Testscript : MonoBehaviour
             {
                 transform.position = RespawnLoc;
             }
-           
+
+        }
+        if (other.CompareTag("TrafficZone")) 
+        {
+            lastSpeedZone = speedLimit;
+            CurrentLight = other.GetComponent<TrafficLightManager>();
         }
        
     }
+
+       
+    
     private void OnTriggerStay( Collider other)
     {
         if (other.CompareTag("StopSign"))
@@ -234,6 +242,18 @@ public class Testscript : MonoBehaviour
                 Debug.Log("You May Proceed");
             }
         }
+        if (other.CompareTag("TrafficZone"))
+        {
+            if (CurrentLight.lightState == "Danger")
+            {
+                speedLimit = 0;
+            }
+            if (CurrentLight.lightState == "Proceed")
+            {
+             
+                speedLimit = lastSpeedZone;
+            }
+        }
     }
     private void OnTriggerExit( Collider other)
     {
@@ -242,5 +262,6 @@ public class Testscript : MonoBehaviour
             stopTimer = 0;
         }
 
+     
     }
 }
