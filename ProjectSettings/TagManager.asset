@@ -8,6 +8,7 @@ TagManager:
   - TestSpeedZoneB
   - StopSign
   - Checkpoint
+  - TrafficZone
   layers:
   - Default
   - TransparentFX

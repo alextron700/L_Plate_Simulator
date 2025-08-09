@@ -7,28 +7,28 @@ using TMPro;
 // COPYRIGHT ALEX G (C) 2025
 public class Testscript : MonoBehaviour
 {
-    public float maxSpeed;
-    private Rigidbody rb;
-    public float maxAcceleration;
-    public float currentSpeed;
-    public float speedLimit;
-    private float calcRotation = 0;
-    public float turnRate;
-    public TMP_Text playerStatus;
-    public Camera driverPOV;
-    private bool indicatorLeft = false;
+    public float maxSpeed; // the maximum speed the car should travel in meters per second
+    private Rigidbody rb; // a rigidbody for collision
+    public float maxAcceleration; // the maximum rate the car can accelerate
+    public float currentSpeed; // how fast the car is travelling
+    public float speedLimit; // the maximum speed the car can travel without speeding logic applying
+    private float calcRotation = 0; // internal calulation value
+    public float turnRate; // how fast the car turns
+    public TMP_Text playerStatus; // the speedo and indicators
+    public Camera driverPOV; // the viewport
+    private bool indicatorLeft = false; // the indicators
     private bool indicatorRight = false;
-    public bool isAnNPC;
-    public float brake;
+    public bool isAnNPC; // determines if the car follows the logic of an external script
+    public float brake; // the brake input
     public float accelerator;
     public float steering;
-    private float stopTimer = 0;
-    private float lastSpeedZone = 0;
+    private float stopTimer = 0; // how long the car has been stopped
+    private float lastSpeedZone = 0; // for stop signs
     public Vector3 RespawnLoc;
     private TrafficLightManager CurrentLight = null; 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>(); // make sure user intentionally avoids assigning a camera to a car
         if (!driverPOV)
         {
             Debug.Log("No Camera assigned! ( this may be because the assigned vehicle is not the player vehicle)");
@@ -49,9 +49,10 @@ public class Testscript : MonoBehaviour
 
         if (isAnNPC == false) // if this script is assigned to the player vehicle, use keyboard inputs, else use assigned AI script as input. Note: AI must be in the same oject
         {
-            Vector3 movement = new Vector3(moveVertical * Mathf.Sin(calcRotation * Mathf.Deg2Rad), 0.0f, moveVertical * Mathf.Cos(calcRotation * Mathf.Deg2Rad));
+            float multipliedTime = 600.0f * Time.deltaTime;
+            Vector3 movement = new Vector3(moveVertical * multipliedTime* Mathf.Sin(calcRotation * Mathf.Deg2Rad), 0.0f, moveVertical * multipliedTime * Mathf.Cos(calcRotation * Mathf.Deg2Rad));
             rb.AddForce(movement * maxSpeed);
-            if (moveVertical != 0)
+            if (moveVertical != 0) 
             {
                 // The factors are different depending on if the car is an NPC
                 if (Mathf.Abs(currentSpeed) < maxSpeed)
@@ -67,7 +68,9 @@ public class Testscript : MonoBehaviour
                     Debug.Log("coast");
                     currentSpeed = Mathf.MoveTowards(currentSpeed, 0, brake);
                 }
-                //  Debug.Log(moveVertical);
+                // The above is the second half of the main calculation, based on the results from the first half, executed in the previous frame.
+                // how it works, for curious people: say you have a right angle triange, you have a known angle X ( calculated earlier, in degrees ), and the hypotenuse has a length of 1. your goal is to calculate the lengths of the other two sides,
+                // If you remember SOHCAHTOA, you can use sin(X) and cos(X) to calculate the remaining two sides.  this correspons to the force exerted to the car along the x and z axes respectively
 
             }
         }
@@ -90,7 +93,7 @@ public class Testscript : MonoBehaviour
                     Debug.Log("coast");
                     currentSpeed = Mathf.MoveTowards(currentSpeed, 0, brake);
                 }
-                //  Debug.Log(moveVertical);
+               
 
             }
         }
@@ -112,6 +115,7 @@ public class Testscript : MonoBehaviour
             transform.Rotate(new Vector3(0f, steering, 0f) * turnRate * Time.deltaTime);
             calcRotation += steering * turnRate * Time.deltaTime;
         }
+        // the above is the first half of the calculation
         if (playerStatus && isAnNPC == false) // check that a canvas object has been assigned, and that this vehicle is not an npc
         {
             playerStatus.text = "Speed: " + Mathf.Abs(currentSpeed * 3.6f) + "KM / H";
@@ -156,7 +160,7 @@ public class Testscript : MonoBehaviour
          }
 
         - Replace "x" with the exact tag name as shown in the Unity Inspector (case sensitive!).
-        - Do not change "CompareTag"—keep the capitalization exactly as shown.
+        - Do not change "CompareTag"�keep the capitalization exactly as shown.
         - Make sure there are no duplicates! ( may cause unpredictable behavior!)
 
         EXAMPLE 1 (new block):
@@ -182,7 +186,7 @@ public class Testscript : MonoBehaviour
      */
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("TestSpeedZoneA"))
+        if (other.CompareTag("TestSpeedZoneA")) 
         {
             speedLimit = 7;
             Debug.Log(speedLimit);
