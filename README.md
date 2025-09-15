@@ -13,3 +13,4 @@ Features:
 - ScenarioManager is a script that in later updates is hoped to have the ability to turn JSON files into playable levels in game.
 - DayNightSystem manipulates a directional light to control when it's day or night
 - TrafficLightManager makes traffic lights work.
+The Project will now contain a Scene asset, Which chould be able to be uploaded directly to unity to view my work
